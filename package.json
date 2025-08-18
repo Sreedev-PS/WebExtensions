@@ -1,0 +1,12 @@
+{
+  "name": "nukari-profile-auto-updater",
+  "version": "1.0.0",
+  "description": "Chrome extension to update Nukari profile and resume automatically.",
+  "scripts": {
+    "build": "tsc && copy /Y dist\\background.js . && copy /Y dist\\popup.js . && copy /Y dist\\contentScript.js ."
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.4",
+    "typescript": "^5.0.0"
+  }
+}

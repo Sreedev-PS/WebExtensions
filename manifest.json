@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Nukari Profile Auto-Updater",
+  "version": "1.0",
+  "description": "Automatically updates Nukari profile description and resume.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.naukri.com/mnjuser/profile*"],
+      "js": ["contentScript.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "host_permissions": ["<all_urls>"],
+  "web_accessible_resources": [
+    {
+      "resources": ["resume/Sreedev P S -Resume"],
+  "matches": ["https://www.naukri.com/*"]
+    }
+  ]
+}
