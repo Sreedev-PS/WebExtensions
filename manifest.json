@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Naukri Latest Job Finder",
+  "version": "1.0.0",
+  "description": "Find latest jobs from Naukri using multiple keywords.",
+  "permissions": ["storage", "activeTab", "scripting", "downloads"],
+  "host_permissions": ["https://www.naukri.com/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Latest Naukri Jobs"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.naukri.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
