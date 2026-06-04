@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Latest Angular Jobs</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <h2>Latest Angular Jobs</h2>
+
+    <label>
+        Max Pages
+        <input id="maxPagesInput" type="number" value="5" min="1" max="20" />
+    </label>
+
+    <label>
+        Keyword
+        <input id="keywordInput" type="text" value="angular" />
+    </label>
+
+    <button id="startBtn">Start Scan</button>
+    <button id="stopBtn">Stop Scan</button>
+    <button id="showBtn">Show Saved Jobs</button>
+    <button id="clearBtn">Clear Saved Jobs</button>
+    <button id="downloadTxtBtn">Download TXT</button>
+    <button id="downloadHtmlBtn">Download HTML</button>
+
+    <p id="status">Ready</p>
+
+    <div id="jobs"></div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
