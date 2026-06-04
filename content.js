@@ -88,7 +88,7 @@ async function applyDateSort() {
 
   const dateOption = [...document.querySelectorAll("[data-filter-id='sort'] a")]
     .find((item) => {
-      return cleanText(item.innerText).toLowerCase() === "recommended";
+      return cleanText(item.innerText).toLowerCase() === "date";
     });
 
   if (!dateOption) {
@@ -169,6 +169,7 @@ function extractJobsFromSearchPage(keywords) {
     const matchedKeywords = getMatchedKeywords(fullText, keywords);
     const hasKeyword = matchedKeywords.length > 0;
     const isLatest = isLatestPostedTime(posted);
+    const category = getJobCategory(fullText);
 
     if (!hasKeyword || !isLatest || !url) {
       return;
@@ -177,6 +178,7 @@ function extractJobsFromSearchPage(keywords) {
     jobs.push({
       title,
       company,
+      category,
       experience,
       location,
       posted,
@@ -204,6 +206,80 @@ function isLatestPostedTime(postedText) {
     value.includes("hour") ||
     value.includes("today")
   );
+}
+
+function getJobCategory(fullText) {
+  const text = fullText.toLowerCase();
+
+  const hasAngular = text.includes("angular");
+  const hasAngularJs = text.includes("angularjs") || text.includes("angular.js");
+  const hasDotNet =
+    text.includes(".net") ||
+    text.includes("dotnet") ||
+    text.includes("asp.net") ||
+    text.includes("c#");
+  const hasJava =
+    text.includes("java ") ||
+    text.includes(" java") ||
+    text.includes("spring") ||
+    text.includes("spring boot");
+  const hasReact = text.includes("react");
+  const hasFrontend =
+    text.includes("frontend") ||
+    text.includes("front end") ||
+    text.includes("ui developer") ||
+    text.includes("ui development") ||
+    text.includes("web developer");
+  const hasFullStack =
+    text.includes("full stack") ||
+    text.includes("fullstack") ||
+    text.includes("full-stack");
+  const hasBackend =
+    text.includes("backend") ||
+    text.includes("back end") ||
+    text.includes("server side");
+
+  if (hasAngular && hasDotNet) {
+    return "Angular + .NET";
+  }
+
+  if (hasAngular && hasJava) {
+    return "Angular + Java";
+  }
+
+  if (hasAngular && hasReact) {
+    return "Angular + React";
+  }
+
+  if (hasAngular && hasFullStack) {
+    return "Angular Full Stack";
+  }
+
+  if (hasAngular && hasFrontend) {
+    return "Angular Frontend";
+  }
+
+  if (hasAngular && hasBackend) {
+    return "Angular + Backend";
+  }
+
+  if (hasAngular && hasAngularJs) {
+    return "Angular / AngularJS";
+  }
+
+  if (hasAngular) {
+    return "Pure Angular";
+  }
+
+  if (hasFrontend) {
+    return "Frontend";
+  }
+
+  if (hasReact) {
+    return "React";
+  }
+
+  return "Maybe Irrelevant";
 }
 
 async function saveJobs(newJobs) {

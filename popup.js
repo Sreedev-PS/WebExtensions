@@ -2,131 +2,162 @@ const startBtn = document.getElementById("startBtn");
 const stopBtn = document.getElementById("stopBtn");
 const showBtn = document.getElementById("showBtn");
 const downloadHtmlBtn = document.getElementById("downloadHtmlBtn");
+const downloadCsvBtn = document.getElementById("downloadCsvBtn");
 const clearBtn = document.getElementById("clearBtn");
 
 const statusEl = document.getElementById("status");
 const jobsEl = document.getElementById("jobs");
 
 startBtn.addEventListener("click", async () => {
-    const maxPages = Number(document.getElementById("maxPagesInput").value);
-    const keywords = document.getElementById("keywordInput").value.trim();
+  const maxPages = Number(document.getElementById("maxPagesInput").value);
+  const keywords = document.getElementById("keywordInput").value.trim();
 
-    const [tab] = await chrome.tabs.query({
-        active: true,
-        currentWindow: true
-    });
+  const [tab] = await chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  });
 
-    chrome.tabs.sendMessage(
-        tab.id,
-        {
-            type: "START_SCAN",
-            payload: {
-                maxPages,
-                keywords
-            }
-        },
-        (response) => {
-            if (chrome.runtime.lastError) {
-                statusEl.innerText = "Error: Please reload Naukri page and try again.";
-                return;
-            }
+  chrome.tabs.sendMessage(
+    tab.id,
+    {
+      type: "START_SCAN",
+      payload: {
+        maxPages,
+        keywords
+      }
+    },
+    (response) => {
+      if (chrome.runtime.lastError) {
+        statusEl.innerText = "Error: Please reload Naukri page and try again.";
+        return;
+      }
 
-            statusEl.innerText = response?.message || "Scan started";
-        }
-    );
+      statusEl.innerText = response?.message || "Scan started";
+    }
+  );
 });
 
 stopBtn.addEventListener("click", async () => {
-    const [tab] = await chrome.tabs.query({
-        active: true,
-        currentWindow: true
-    });
+  const [tab] = await chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  });
 
-    chrome.tabs.sendMessage(tab.id, { type: "STOP_SCAN" }, (response) => {
-        if (chrome.runtime.lastError) {
-            statusEl.innerText = "Error: Could not stop scan.";
-            return;
-        }
+  chrome.tabs.sendMessage(tab.id, { type: "STOP_SCAN" }, (response) => {
+    if (chrome.runtime.lastError) {
+      statusEl.innerText = "Error: Could not stop scan.";
+      return;
+    }
 
-        statusEl.innerText = response?.message || "Stopped";
-    });
+    statusEl.innerText = response?.message || "Stopped";
+  });
 });
 
 showBtn.addEventListener("click", () => {
-    chrome.storage.local.get(["latestNaukriJobs"], (result) => {
-        const jobs = result.latestNaukriJobs || [];
-        renderJobs(jobs);
-    });
+  chrome.storage.local.get(["latestNaukriJobs"], (result) => {
+    const jobs = result.latestNaukriJobs || [];
+    renderJobs(jobs);
+  });
 });
 
 downloadHtmlBtn.addEventListener("click", () => {
-    chrome.storage.local.get(["latestNaukriJobs"], (result) => {
-        const jobs = result.latestNaukriJobs || [];
+  chrome.storage.local.get(["latestNaukriJobs"], (result) => {
+    const jobs = result.latestNaukriJobs || [];
 
-        if (!jobs.length) {
-            statusEl.innerText = "No jobs available to download.";
-            return;
-        }
+    if (!jobs.length) {
+      statusEl.innerText = "No jobs available to download.";
+      return;
+    }
 
-        const htmlContent = createHtmlFileContent(jobs);
+    const htmlContent = createHtmlFileContent(jobs);
 
-        const blob = new Blob([htmlContent], {
-            type: "text/html"
-        });
-
-        const url = URL.createObjectURL(blob);
-        const fileName = `naukri-latest-jobs-${getTodayDate()}.html`;
-
-        chrome.downloads.download({
-            url,
-            filename: fileName,
-            saveAs: true
-        });
-
-        statusEl.innerText = "HTML file download started.";
+    const blob = new Blob([htmlContent], {
+      type: "text/html"
     });
+
+    const url = URL.createObjectURL(blob);
+    const fileName = `naukri-latest-jobs-${getTodayDate()}.html`;
+
+    chrome.downloads.download({
+      url,
+      filename: fileName,
+      saveAs: true
+    });
+
+    statusEl.innerText = "HTML file download started.";
+  });
+});
+
+downloadCsvBtn.addEventListener("click", () => {
+  chrome.storage.local.get(["latestNaukriJobs"], (result) => {
+    const jobs = result.latestNaukriJobs || [];
+
+    if (!jobs.length) {
+      statusEl.innerText = "No jobs available to download.";
+      return;
+    }
+
+    const csvContent = createCsvFileContent(jobs);
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const fileName = `naukri-latest-jobs-${getTodayDate()}.csv`;
+
+    chrome.downloads.download({
+      url,
+      filename: fileName,
+      saveAs: true
+    });
+
+    statusEl.innerText = "CSV file download started.";
+  });
 });
 
 clearBtn.addEventListener("click", () => {
-    chrome.storage.local.set({ latestNaukriJobs: [] }, () => {
-        jobsEl.innerHTML = "";
-        statusEl.innerText = "Cleared saved jobs";
-    });
+  chrome.storage.local.set({ latestNaukriJobs: [] }, () => {
+    jobsEl.innerHTML = "";
+    statusEl.innerText = "Cleared saved jobs";
+  });
 });
 
 function renderJobs(jobs) {
-    if (!jobs.length) {
-        jobsEl.innerHTML = "<p>No jobs saved yet.</p>";
-        return;
-    }
+  if (!jobs.length) {
+    jobsEl.innerHTML = "<p>No jobs saved yet.</p>";
+    return;
+  }
 
-    jobsEl.innerHTML = jobs
-        .map(
-            (job, index) => `
+  jobsEl.innerHTML = jobs
+    .map(
+      (job, index) => `
       <div class="job-card">
         <h3>${index + 1}. ${escapeHtml(job.title)}</h3>
         <p><strong>Company:</strong> ${escapeHtml(job.company)}</p>
+        <p><strong>Category:</strong> ${escapeHtml(job.category)}</p>
         <p><strong>Experience:</strong> ${escapeHtml(job.experience)}</p>
         <p><strong>Location:</strong> ${escapeHtml(job.location)}</p>
         <p><strong>Posted:</strong> ${escapeHtml(job.posted)}</p>
         <p><strong>Matched:</strong> ${escapeHtml(
-                (job.matchedKeywords || []).join(", ")
-            )}</p>
+          (job.matchedKeywords || []).join(", ")
+        )}</p>
         <a href="${job.url}" target="_blank">Open Job</a>
       </div>
     `
-        )
-        .join("");
+    )
+    .join("");
 }
 
 function createHtmlFileContent(jobs) {
-    const rows = jobs
-        .map((job, index) => {
-            return `
+  const rows = jobs
+    .map((job, index) => {
+      return `
         <tr>
           <td>${index + 1}</td>
           <td>${escapeHtml(job.title)}</td>
           <td>${escapeHtml(job.company)}</td>
+          <td>${escapeHtml(job.category)}</td>
           <td>${escapeHtml(job.experience)}</td>
           <td>${escapeHtml(job.location)}</td>
           <td>${escapeHtml(job.posted)}</td>
@@ -136,10 +167,10 @@ function createHtmlFileContent(jobs) {
           </td>
         </tr>
       `;
-        })
-        .join("");
+    })
+    .join("");
 
-    return `
+  return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -179,21 +210,19 @@ function createHtmlFileContent(jobs) {
 
     th {
       background: #f2f2f2;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tbody tr {
+      transition: background 0.2s ease;
     }
 
     tbody tr:hover {
       background: #fff3cd;
       cursor: pointer;
     }
-
-    tbody tr {
-  transition: background 0.2s ease;
-}
-
-tbody tr:hover {
-  background: #fff3cd;
-  cursor: pointer;
-}
 
     a {
       color: #0645ad;
@@ -216,6 +245,7 @@ tbody tr:hover {
         <th>No</th>
         <th>Title</th>
         <th>Company</th>
+        <th>Category</th>
         <th>Experience</th>
         <th>Location</th>
         <th>Posted</th>
@@ -233,19 +263,59 @@ tbody tr:hover {
   `;
 }
 
+function createCsvFileContent(jobs) {
+  const headers = [
+    "No",
+    "Title",
+    "Company",
+    "Category",
+    "Experience",
+    "Location",
+    "Posted",
+    "Matched Keywords",
+    "Job Link"
+  ];
+
+  const rows = jobs.map((job, index) => {
+    return [
+      index + 1,
+      job.title,
+      job.company,
+      job.category,
+      job.experience,
+      job.location,
+      job.posted,
+      (job.matchedKeywords || []).join(", "),
+      job.url
+    ];
+  });
+
+  const csvRows = [headers, ...rows].map((row) => {
+    return row.map(escapeCsvValue).join(",");
+  });
+
+  return "\uFEFF" + csvRows.join("\n");
+}
+
+function escapeCsvValue(value = "") {
+  const stringValue = String(value);
+  const escapedValue = stringValue.replaceAll('"', '""');
+  return `"${escapedValue}"`;
+}
+
 function getTodayDate() {
-    const date = new Date();
+  const date = new Date();
 
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
 
-    return `${year}-${month}-${day}`;
+  return `${year}-${month}-${day}`;
 }
 
 function escapeHtml(value = "") {
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;");
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 }
