@@ -88,7 +88,7 @@ async function applyDateSort() {
 
   const dateOption = [...document.querySelectorAll("[data-filter-id='sort'] a")]
     .find((item) => {
-      return cleanText(item.innerText).toLowerCase() === "date";
+      return cleanText(item.innerText).toLowerCase() === "recommended";
     });
 
   if (!dateOption) {
