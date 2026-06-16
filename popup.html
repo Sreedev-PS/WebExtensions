@@ -1,37 +1,159 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-  <head>
-    <title>Latest Naukri Jobs</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <title>LinkedIn Job Finder</title>
 
-  <body>
-    <h2>Latest Naukri Jobs</h2>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      width: 380px;
+      padding: 14px;
+    }
 
-    <label>
-      Max Pages
-      <input id="maxPagesInput" type="number" value="5" min="1" max="20" />
-    </label>
+    h3 {
+      margin-top: 0;
+    }
 
-    <label>
-      Keywords
-      <input
-        id="keywordInput"
-        type="text"
-        value="angular, angular developer, frontend developer, ui developer, typescript, rxjs"
-      />
-    </label>
+    label {
+      font-weight: 700;
+      display: block;
+      margin-top: 10px;
+    }
 
-    <button id="startBtn">Start Scan</button>
-    <button id="stopBtn">Stop Scan</button>
-    <button id="showBtn">Show Saved Jobs</button>
-    <button id="downloadHtmlBtn">Download HTML</button>
-    <button id="clearBtn">Clear Saved Jobs</button>
+    input,
+    textarea,
+    select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      margin-top: 5px;
+    }
 
-    <p id="status">Ready</p>
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 12px;
+      cursor: pointer;
+      border: 0;
+      border-radius: 6px;
+      font-weight: 700;
+    }
 
-    <div id="jobs"></div>
+    #start {
+      background: #0a66c2;
+      color: white;
+    }
 
-    <script src="popup.js"></script>
-  </body>
+    #stop {
+      background: #b24020;
+      color: white;
+    }
+
+    #downloadCsv,
+    #downloadHtml {
+      background: #eef3f8;
+    }
+
+    #clearSaved {
+      background: #444;
+      color: white;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .row > div {
+      flex: 1;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-size: 13px;
+      white-space: pre-wrap;
+      color: #333;
+      background: #f5f5f5;
+      padding: 8px;
+      border-radius: 6px;
+      min-height: 45px;
+    }
+
+    .hint {
+      color: #666;
+      font-size: 12px;
+      line-height: 1.35;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+
+<body>
+  <h3>LinkedIn Job Finder</h3>
+
+  <label>Keywords</label>
+  <textarea id="keywords" rows="4">
+    Angular Developer
+Frontend Developer Angular
+web developer
+frontend developer
+frontend engineer
+software engineer frontend
+software developer frontend
+software developer angular
+software engineer angular
+frontend software engineer
+angular software engineer
+frontend web developer
+frontend software developer
+angular software developer
+software engineer - frontend
+software engineer - angular
+software developer - frontend
+software developer - angular
+ui developer
+ui engineer
+ui software engineer
+ui software developer
+ui/ux developer
+ui/ux engineer
+Senior Angular Developer
+  </textarea>
+
+  <div class="hint">
+    Separate keywords by comma or new line.
+  </div>
+
+  <label>Location</label>
+  <input id="location" value="India" />
+
+  <div class="row">
+    <div>
+      <label>Pages / batches</label>
+      <input id="pages" type="number" min="1" max="20" value="1" />
+    </div>
+
+    <div>
+      <label>Delay ms</label>
+      <input id="delay" type="number" min="700" value="1800" />
+    </div>
+  </div>
+
+  <label>Mode</label>
+  <select id="mode">
+    <option value="current">Extract current LinkedIn search page only</option>
+    <option value="multiKeyword">Open first keyword search URL</option>
+  </select>
+
+  <button id="start">Start Collecting</button>
+  <button id="stop">Stop</button>
+  <button id="downloadCsv">Download CSV</button>
+  <button id="downloadHtml">Download HTML</button>
+  <button id="clearSaved">Clear Saved Jobs</button>
+
+  <div id="status">Ready.</div>
+
+  <script src="popup.js"></script>
+</body>
 </html>
